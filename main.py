@@ -12,24 +12,11 @@ monDet = MoneyDetector()
 
 pyautogui.getWindowsWithTitle("BloonsTD6")[0].activate()
 place = Placer()
-for i in range(1,5):
-    place.placeNext("wizard_monkey")
-    time.sleep(2)
+# for i in range(1,5):
+#     place.placeNext("wizard_monkey")
+#     time.sleep(2)
+# print(place.getMonkeysStr())
+place.placeNext("wizard_monkey")
+place.upgrade(0, 1)
 print(place.getMonkeysStr())
-# pyautogui.moveTo(450, 75, duration=0.5)
 
-
- # wizard monkey -> A
-    # Super monkey -> S
-    # Bomb shooter -> E
-    # Sniper monkey -> Z
-    # Banana farm -> H
-    
-    # Upgrade path 1 -> ,
-    # Upgrade path 2 -> .
-    # Upgrade path 3 -> /
-    
-    # Change target -> Tab
-    
-    # Sell -> backspace
-    

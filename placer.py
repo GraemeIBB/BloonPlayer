@@ -1,6 +1,6 @@
 import pyautogui
 import time
-from pynput.keyboard import Controller
+from pynput.keyboard import Key, Controller
 from money_detector import MoneyDetector
 from tower_costs import easy
 from locations import monkey_meadow
@@ -65,18 +65,50 @@ class Placer:
 
 
         # Add the new monkey to the list
-        self.monkeys.append((type,location,"000"))
+        self.monkeys.append([type,location,0])
         print(f"Placed {type} at location {location}")
     
     def upgrade(self, monkey, choice):
-        # monkey example: 1
-        # choice example: "001"
-
-        # check upgrade cost against current ballance
-        # if viable then upgrade
+        if monkey < 0 or monkey >= len(self.monkeys):
+            print("Invalid monkey index")
+            return
+        # monkey example: 0
+        # choice example: 1 or 2 or 3
+        num = -1
+        if choice == 1:
+            keybind = self.bind['upgrade_path_1']
+            num = 100
+        elif choice == 2:
+            keybind = self.bind['upgrade_path_2']
+            num = 10
+        elif choice == 3:
+            keybind = self.bind['upgrade_path_3']
+            num = 1
+        else:
+            print("Invalid upgrade choice")
+            return
+        m = self.monkeys[monkey]
         
-        # determine which keybind through
-        pass
+        
+        price = self.costs.get(m[0]+str(m[2]+num))
+        if(int(self.money.get_money()) < price):
+            print("Not enough money to upgrade this tower")
+            return
+        # upgrade monkey
+        
+
+        self.goTo(m[1])
+        pyautogui.click()
+        self.keyboard.press(keybind)
+        time.sleep(0.1)
+        self.keyboard.release(keybind)
+        time.sleep(0.1)
+        self.keyboard.press(Key.esc)
+        time.sleep(0.1)
+        self.keyboard.release(Key.esc)
+
+        m[2] += num
+        
 
     def goTo(self, location):
         coordinates = self.map.get(location)
