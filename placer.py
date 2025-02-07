@@ -7,6 +7,7 @@ from locations import monkey_meadow
 from bindings import bindings
 
 
+
 class Placer:
     def __init__(self):
         self.monkeys = []
