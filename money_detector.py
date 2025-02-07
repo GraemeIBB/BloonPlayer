@@ -1,3 +1,4 @@
+import time
 import cv2
 import numpy as np
 from PIL import ImageGrab
@@ -35,6 +36,9 @@ class MoneyDetector:
 
         detected_digits.sort()
         money_str = "".join(digit for _, digit in detected_digits)
+        if(money_str == ''):
+            time.sleep(1)
+            money_str = self.get_money()
         return money_str
 
 if __name__ == "__main__":
