@@ -1,3 +1,4 @@
+import random
 import pyautogui
 import time
 from pynput.keyboard import Key, Controller
@@ -17,21 +18,35 @@ class Placer:
         self.costs = easy
         self.map = monkey_meadow
         self.bind = bindings
+        self.baseMonkeys = []
+        for key in self.costs:
+            if key[-3:] == "000":
+                self.baseMonkeys.append(key)
+        self.moveNum = 0
+    
+    def preciseMoney(self):
+        a = self.money.get_money()
+        b = self.money.get_money()
+        if a == b:
+            return a
+        else:
+            return self.preciseMoney()
         
+    
     def placeNext(self, type):
        
         # Find the next available position
         if len(self.monkeys) > 0:
-            available_positions = set(range(1, 15)) - {m[1] for m in self.monkeys}
+            available_positions = set(range(1, len(self.map))) - {m[1] for m in self.monkeys}
             if not available_positions:
                 print("No available positions")
-                return
+                return -1
     
             next_position = min(available_positions)
             self.place(type, next_position)
         else:
             self.place(type,1)
-
+        return 1
 
 
     def place(self, type, location):
@@ -50,7 +65,7 @@ class Placer:
             print(f"Unknown tower type: {type}")
             return
 
-        if int(self.money.get_money()) < cost:
+        if int(self.preciseMoney()) < cost:
             print("Not enough money to place this tower")
             return
 
@@ -95,7 +110,7 @@ class Placer:
             return
         
         price = self.costs.get(m[0]+newStr)
-        if(int(self.money.get_money()) < price):
+        if(int(self.preciseMoney()) < price):
             print("Not enough money to upgrade this tower")
             return
         # upgrade monkey
@@ -123,7 +138,7 @@ class Placer:
         return str(self.monkeys)
     
     def getMoneyStr(self):
-        return self.money.get_money()
+        return self.preciseMoney()
     
     def thinkUpgrades(self):
         # TODO make into a nested class think with methods like think.upgrade() and think.buy()
@@ -134,7 +149,7 @@ class Placer:
         # implement requirement logic here, ie if two paths have been upgraded, third is unavailable, and
         # if three upgrade have been made on one path, the limit for the other is 2.
         # --> placer.think()
-        print('thinking')
+        print('thinking-upgrade')
         viable = []
         i = 0
         for m in self.monkeys:
@@ -199,23 +214,89 @@ class Placer:
             # checking costs against balance
             if path1Bool:
                 if(m[0]+ str(path1+1) +"00" in self.costs ):
-                    if(self.costs.get(m[0]+ str(path1+1) +"00") <= int(self.money.get_money())):
+                    if(self.costs.get(m[0]+ str(path1+1) +"00") <= int(self.preciseMoney())):
                         viable.append([i,1,m])
 
             if path2Bool:
                 if(m[0]+"0"+ str(path2+1) + "0" in self.costs):
-                    if(self.costs.get(m[0]+"0"+ str(path2+1) + "0") <= int(self.money.get_money())):
+                    if(self.costs.get(m[0]+"0"+ str(path2+1) + "0") <= int(self.preciseMoney())):
                         viable.append([i,2,m])
 
             if path3Bool:
                 if(m[0]+"00"+ str(path3+1) in self.costs):
-                    if(self.costs.get(m[0]+"00"+ str(path3+1)) <= int(self.money.get_money())):
+                    if(self.costs.get(m[0]+"00"+ str(path3+1)) <= int(self.preciseMoney())):
                         viable.append([i,3,m])
             i+=1
             
 
         return viable
+    
+    def thinkBuy(self):
+        print('thinking-buy')
+        # return list of possible buys in this format
+        # [[type, location, value], [type, location, value],...] value is stored as a property due to how elements are appended out of order
         
+        # iterate through list of monkeys in costs ending in 000, compare with balance
+        viable = []
+        for m in self.baseMonkeys:
+            if(self.costs.get(m) <= int(self.preciseMoney())):
+                viable.append([m ,0,0])
+        # assign location
+        for v in viable:
+            pass
+        return viable
+        # assign value based on existing monkey types, the more of one kind there are, the less valuable
+    
+    def play(self):
+        print("Move number: " + str(self.moveNum))
+        thresh = 5
+        if self.moveNum >= 30:
+            thresh = 3
+        if self.moveNum == 0:
+            self.placeSniper()
+            self.placeWizardNext()
+            self.moveNum = 2
+            return
+        choice = random.randint(0,10)
+        if choice > thresh:
+            self.upgradeRandom()
+        elif choice <= thresh:
+            self.placeWizardNext()
+        
+        self.moveNum += 1
+        
+    
+    def upgradeRandom(self):
+        upgrades = self.thinkUpgrades()
+        if upgrades:
+            chosen_upgrade = random.choice(upgrades)
+            print(f"Chosen upgrade: {chosen_upgrade}")
+            self.upgrade(chosen_upgrade[0], chosen_upgrade[1])
+        else:
+            print("No upgrades available")
+    
+    def placeRandomNext(self):
+        options = self.thinkBuy()
+        if options:
+            chosen_buy = random.choice(options)
+            print(f"Chosen purchase: {chosen_buy}")
+            self.placeNext(chosen_buy[0][:-3])
+        else:
+            print("No new monkeys available")
+            
+    def placeWizardNext(self):
+        options = self.thinkBuy()
+        for op in options:
+            if op[0] == "wizard_monkey000":
+                chosen_buy = op
+                print(f"Chosen purchase: {chosen_buy}")
+                self.placeNext(chosen_buy[0][:-3])
+                return
+    
+    def placeSniper(self):
+        self.place("sniper_monkey", 27)
+        
+        # FIXME: This is a temporary fix for the sniper monkey placement
 
     
 

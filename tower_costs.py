@@ -85,7 +85,7 @@ easy = {
     'banana_farm004': 12750,
     'banana_farm005': 51000,
 
-    'ninja_monkey000': 425,
+    # 'ninja_monkey000': 425,
 }
 
 medium = {
