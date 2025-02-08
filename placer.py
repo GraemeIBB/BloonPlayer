@@ -65,7 +65,7 @@ class Placer:
 
 
         # Add the new monkey to the list
-        self.monkeys.append([type,location,0])
+        self.monkeys.append([type,location,"000"])
         print(f"Placed {type} at location {location}")
     
     def upgrade(self, monkey, choice):
@@ -74,23 +74,27 @@ class Placer:
             return
         # monkey example: 0
         # choice example: 1 or 2 or 3
-        num = -1
+        newStr = ""
+        m = self.monkeys[monkey]
+
         if choice == 1:
             keybind = self.bind['upgrade_path_1']
-            num = 100
+            newStr = str(int(m[2][choice-1]) + 1) +"00" 
         elif choice == 2:
             keybind = self.bind['upgrade_path_2']
-            num = 10
+            newStr = "0" + str(int(m[2][choice-1]) + 1)+"0" 
         elif choice == 3:
             keybind = self.bind['upgrade_path_3']
-            num = 1
+            newStr = "00" + str(int(m[2][choice-1]) + 1)
         else:
             print("Invalid upgrade choice")
+            return 
+
+        if m[0]+newStr not in self.costs:
+            print(m[0]+newStr + " Invalid upgrade choice")
             return
-        m = self.monkeys[monkey]
         
-        
-        price = self.costs.get(m[0]+str(m[2]+num))
+        price = self.costs.get(m[0]+newStr)
         if(int(self.money.get_money()) < price):
             print("Not enough money to upgrade this tower")
             return
@@ -107,7 +111,8 @@ class Placer:
         time.sleep(0.1)
         self.keyboard.release(Key.esc)
 
-        m[2] += num
+        m[2] = m[2][:choice-1] + str(int(m[2][choice-1]) + 1) + m[2][choice:]
+        print(f"Upgraded monkey at location {m[1]} with choice {choice}")
         
 
     def goTo(self, location):
@@ -116,6 +121,101 @@ class Placer:
     
     def getMonkeysStr(self):
         return str(self.monkeys)
+    
+    def getMoneyStr(self):
+        return self.money.get_money()
+    
+    def thinkUpgrades(self):
+        # TODO make into a nested class think with methods like think.upgrade() and think.buy()
+
+        # good idea is to evaluate all options with given money, then determine one that is most helpful.
+        #  If all current monkeys are upgraded, then buy a new one.
+        #  If none are, then upgrade them.
+        # implement requirement logic here, ie if two paths have been upgraded, third is unavailable, and
+        # if three upgrade have been made on one path, the limit for the other is 2.
+        # --> placer.think()
+        print('thinking')
+        viable = []
+        i = 0
+        for m in self.monkeys:
+            # evaluating unavailable paths
+            path1 = int(m[2][0])
+            path2 = int(m[2][1])
+            path3 = int(m[2][2])
+            paths = [path1,path2,path3]
+            selectedPaths = []
+            j = 0
+            for p in paths:
+                if p > 0:
+                    selectedPaths.append(j)
+                j +=1
+
+            path1Bool = True
+            path2Bool = True
+            path3Bool = True
+
+            if(len(selectedPaths) == 2):
+                print("two paths flagged")
+                if(2 not in selectedPaths):
+                    print("path 3 is unavailable")
+                    path3Bool = False
+                    if(path1 == 3):
+                        print("path 2 is limited to 2")
+                        if(path2 == 2):
+                            path2Bool = False
+                    elif(path2 == 3):
+                        print("path 1 is limited to 2")
+                        if(path1 == 2):
+                            path1Bool = False
+                    
+                elif(1 not in selectedPaths):
+                    print("path 2 is unavailable")
+                    path2Bool = False
+                    if(path1 == 3):
+                        print("path 3 is limited to 2")
+                        if(path3 == 2):
+                            path3Bool = False
+                    elif(path3 == 3):
+                        print("path 1 is limited to 2")
+                        if(path1 == 2):
+                            path1Bool = False
+                    
+                elif(0 not in selectedPaths):
+                    print("path 1 is unavailable")
+                    path1Bool = False
+                    if(path2 == 3):
+                        print("path 3 is limited to 2")
+                        if(path3 == 2):
+                            path3Bool = False
+                    elif(path3 == 3):
+                        print("path 2 is limited to 2")
+                        if(path2 == 2):
+                            path2Bool = False
+                    
+            print(str(i)+" "+m[0]+ str(path1+1) +"00" + " option 1" + str(path1Bool))
+            print(str(i)+" "+m[0]+ "0"+ str(path2+1) + "0" + " option 2" + str(path2Bool))
+            print(str(i)+" "+m[0]+ "00"+ str(path3+1) + " option 3" + str(path3Bool))
+
+            # checking costs against balance
+            if path1Bool:
+                if(m[0]+ str(path1+1) +"00" in self.costs ):
+                    if(self.costs.get(m[0]+ str(path1+1) +"00") <= int(self.money.get_money())):
+                        viable.append([i,1,m])
+
+            if path2Bool:
+                if(m[0]+"0"+ str(path2+1) + "0" in self.costs):
+                    if(self.costs.get(m[0]+"0"+ str(path2+1) + "0") <= int(self.money.get_money())):
+                        viable.append([i,2,m])
+
+            if path3Bool:
+                if(m[0]+"00"+ str(path3+1) in self.costs):
+                    if(self.costs.get(m[0]+"00"+ str(path3+1)) <= int(self.money.get_money())):
+                        viable.append([i,3,m])
+            i+=1
+            
+
+        return viable
+        
 
     
 
