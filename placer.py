@@ -39,7 +39,7 @@ class Placer:
         if len(self.monkeys) > 0:
             available_positions = set(range(1, len(self.map))) - {m[1] for m in self.monkeys}
             if not available_positions:
-                print("No available positions")
+                # print("No available positions")
                 return -1
     
             next_position = min(available_positions)
@@ -56,17 +56,17 @@ class Placer:
         # check if monkey exists with that location already
         for m in self.monkeys:
             if m[1] == location:
-                print("a monkey already exists in this location")
+                # print("a monkey already exists in this location")
                 return
         
         # check to see if you have enough money
         cost = self.costs.get(type + "000")
         if cost is None:
-            print(f"Unknown tower type: {type}")
+            # print(f"Unknown tower type: {type}")
             return
 
         if int(self.preciseMoney()) < cost:
-            print("Not enough money to place this tower")
+            # print("Not enough money to place this tower")
             return
 
         # place monkey
@@ -81,11 +81,11 @@ class Placer:
 
         # Add the new monkey to the list
         self.monkeys.append([type,location,"000"])
-        print(f"Placed {type} at location {location}")
+        # print(f"Placed {type} at location {location}")
     
     def upgrade(self, monkey, choice):
         if monkey < 0 or monkey >= len(self.monkeys):
-            print("Invalid monkey index")
+            # print("Invalid monkey index")
             return
         # monkey example: 0
         # choice example: 1 or 2 or 3
@@ -102,16 +102,16 @@ class Placer:
             keybind = self.bind['upgrade_path_3']
             newStr = "00" + str(int(m[2][choice-1]) + 1)
         else:
-            print("Invalid upgrade choice")
+            # print("Invalid upgrade choice")
             return 
 
         if m[0]+newStr not in self.costs:
-            print(m[0]+newStr + " Invalid upgrade choice")
+            # print(m[0]+newStr + " Invalid upgrade choice")
             return
         
         price = self.costs.get(m[0]+newStr)
         if(int(self.preciseMoney()) < price):
-            print("Not enough money to upgrade this tower")
+            # print("Not enough money to upgrade this tower")
             return
         # upgrade monkey
         
@@ -127,7 +127,7 @@ class Placer:
         self.keyboard.release(Key.esc)
 
         m[2] = m[2][:choice-1] + str(int(m[2][choice-1]) + 1) + m[2][choice:]
-        print(f"Upgraded monkey at location {m[1]} with choice {choice}")
+        # print(f"Upgraded monkey at location {m[1]} with choice {choice}")
         
 
     def goTo(self, location):
@@ -149,7 +149,7 @@ class Placer:
         # implement requirement logic here, ie if two paths have been upgraded, third is unavailable, and
         # if three upgrade have been made on one path, the limit for the other is 2.
         # --> placer.think()
-        print('thinking-upgrade')
+        # print('thinking-upgrade')
         viable = []
         i = 0
         for m in self.monkeys:
@@ -170,46 +170,46 @@ class Placer:
             path3Bool = True
 
             if(len(selectedPaths) == 2):
-                print("two paths flagged")
+                # print("two paths flagged")
                 if(2 not in selectedPaths):
-                    print("path 3 is unavailable")
+                    # print("path 3 is unavailable")
                     path3Bool = False
                     if(path1 == 3):
-                        print("path 2 is limited to 2")
+                        # print("path 2 is limited to 2")
                         if(path2 == 2):
                             path2Bool = False
                     elif(path2 == 3):
-                        print("path 1 is limited to 2")
+                        # print("path 1 is limited to 2")
                         if(path1 == 2):
                             path1Bool = False
                     
                 elif(1 not in selectedPaths):
-                    print("path 2 is unavailable")
+                    # print("path 2 is unavailable")
                     path2Bool = False
                     if(path1 == 3):
-                        print("path 3 is limited to 2")
+                        # print("path 3 is limited to 2")
                         if(path3 == 2):
                             path3Bool = False
                     elif(path3 == 3):
-                        print("path 1 is limited to 2")
+                        # print("path 1 is limited to 2")
                         if(path1 == 2):
                             path1Bool = False
                     
                 elif(0 not in selectedPaths):
-                    print("path 1 is unavailable")
+                    # print("path 1 is unavailable")
                     path1Bool = False
                     if(path2 == 3):
-                        print("path 3 is limited to 2")
+                        # print("path 3 is limited to 2")
                         if(path3 == 2):
                             path3Bool = False
                     elif(path3 == 3):
-                        print("path 2 is limited to 2")
+                        # print("path 2 is limited to 2")
                         if(path2 == 2):
                             path2Bool = False
                     
-            print(str(i)+" "+m[0]+ str(path1+1) +"00" + " option 1" + str(path1Bool))
-            print(str(i)+" "+m[0]+ "0"+ str(path2+1) + "0" + " option 2" + str(path2Bool))
-            print(str(i)+" "+m[0]+ "00"+ str(path3+1) + " option 3" + str(path3Bool))
+            # print(str(i)+" "+m[0]+ str(path1+1) +"00" + " option 1" + str(path1Bool))
+            # print(str(i)+" "+m[0]+ "0"+ str(path2+1) + "0" + " option 2" + str(path2Bool))
+            # print(str(i)+" "+m[0]+ "00"+ str(path3+1) + " option 3" + str(path3Bool))
 
             # checking costs against balance
             if path1Bool:
@@ -232,7 +232,7 @@ class Placer:
         return viable
     
     def thinkBuy(self):
-        print('thinking-buy')
+        # print('thinking-buy')
         # return list of possible buys in this format
         # [[type, location, value], [type, location, value],...] value is stored as a property due to how elements are appended out of order
         
@@ -248,7 +248,7 @@ class Placer:
         # assign value based on existing monkey types, the more of one kind there are, the less valuable
     
     def play(self):
-        print("Move number: " + str(self.moveNum))
+        # print("Move number: " + str(self.moveNum))
         thresh = 5
         if self.moveNum >= 30:
             thresh = 3
@@ -258,38 +258,42 @@ class Placer:
             self.moveNum = 2
             return
         choice = random.randint(0,10)
+        if(len(self.monkeys) > 14):
+            self.upgradeRandom()
+            self.moveNum += 1
+            return
         if choice > thresh:
             self.upgradeRandom()
         elif choice <= thresh:
             self.placeWizardNext()
         
-        self.moveNum += 1
+        
         
     
     def upgradeRandom(self):
         upgrades = self.thinkUpgrades()
         if upgrades:
             chosen_upgrade = random.choice(upgrades)
-            print(f"Chosen upgrade: {chosen_upgrade}")
+            # print(f"Chosen upgrade: {chosen_upgrade}")
             self.upgrade(chosen_upgrade[0], chosen_upgrade[1])
-        else:
-            print("No upgrades available")
+        
     
     def placeRandomNext(self):
         options = self.thinkBuy()
         if options:
             chosen_buy = random.choice(options)
-            print(f"Chosen purchase: {chosen_buy}")
+            # print(f"Chosen purchase: {chosen_buy}")
             self.placeNext(chosen_buy[0][:-3])
         else:
-            print("No new monkeys available")
+            pass
+            # print("No new monkeys available")
             
     def placeWizardNext(self):
         options = self.thinkBuy()
         for op in options:
             if op[0] == "wizard_monkey000":
                 chosen_buy = op
-                print(f"Chosen purchase: {chosen_buy}")
+                # print(f"Chosen purchase: {chosen_buy}")
                 self.placeNext(chosen_buy[0][:-3])
                 return
     
