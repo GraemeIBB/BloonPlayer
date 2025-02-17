@@ -157,72 +157,53 @@ class Placer:
             path1 = int(m[2][0])
             path2 = int(m[2][1])
             path3 = int(m[2][2])
-            paths = [path1,path2,path3]
-            selectedPaths = []
-            j = 0
-            for p in paths:
-                if p > 0:
-                    selectedPaths.append(j)
-                j +=1
 
-            path1Bool = True
-            path2Bool = True
-            path3Bool = True
+            # Build a small dictionary to hold path values & booleans by index
+            paths_dict = {
+                0: {"value": path1, "flag": True},
+                1: {"value": path2, "flag": True},
+                2: {"value": path3, "flag": True},
+            }
 
-            if(len(selectedPaths) == 2):
-                # print("two paths flagged")
-                if(2 not in selectedPaths):
-                    # print("path 3 is unavailable")
-                    path3Bool = False
-                    if(path1 == 3):
-                        # print("path 2 is limited to 2")
-                        if(path2 == 2):
-                            path2Bool = False
-                    elif(path2 == 3):
-                        # print("path 1 is limited to 2")
-                        if(path1 == 2):
-                            path1Bool = False
-                    
-                elif(1 not in selectedPaths):
-                    # print("path 2 is unavailable")
-                    path2Bool = False
-                    if(path1 == 3):
-                        # print("path 3 is limited to 2")
-                        if(path3 == 2):
-                            path3Bool = False
-                    elif(path3 == 3):
-                        # print("path 1 is limited to 2")
-                        if(path1 == 2):
-                            path1Bool = False
-                    
-                elif(0 not in selectedPaths):
-                    # print("path 1 is unavailable")
-                    path1Bool = False
-                    if(path2 == 3):
-                        # print("path 3 is limited to 2")
-                        if(path3 == 2):
-                            path3Bool = False
-                    elif(path3 == 3):
-                        # print("path 2 is limited to 2")
-                        if(path2 == 2):
-                            path2Bool = False
+            # Which path indexes are actually "selected" (i.e., > 0)?
+            selectedPaths = [i for i, p in enumerate([path1, path2, path3]) if p > 0]
+
+            # If exactly two paths are selected, disable the missing path’s flag
+            # and then see if one path being >=3 should disable another which is ==2.
+            if len(selectedPaths) == 2:
+                # 1) Identify the path that is *not* selected
+                missing = ({0, 1, 2} - set(selectedPaths)).pop()
+                paths_dict[missing]["flag"] = False
+
+                # 2) Among the remaining two:
+                remaining = list(set([0, 1, 2]) - {missing})
+                i, j = remaining[0], remaining[1]
+
+                # 3) If one is >= 3 and the other is exactly 2, disable the "2" path
+                if paths_dict[i]["value"] >= 3 and paths_dict[j]["value"] == 2:
+                    paths_dict[j]["flag"] = False
+                elif paths_dict[j]["value"] >= 3 and paths_dict[i]["value"] == 2:
+                    paths_dict[i]["flag"] = False
+
+            
+
                     
             # print(str(i)+" "+m[0]+ str(path1+1) +"00" + " option 1" + str(path1Bool))
             # print(str(i)+" "+m[0]+ "0"+ str(path2+1) + "0" + " option 2" + str(path2Bool))
             # print(str(i)+" "+m[0]+ "00"+ str(path3+1) + " option 3" + str(path3Bool))
 
             # checking costs against balance
-            if path1Bool:
+            if paths_dict[0]["flag"]:
                 if(m[0]+ str(path1+1) +"00" in self.costs ):
                     if(self.costs.get(m[0]+ str(path1+1) +"00") <= int(self.preciseMoney())):
                         viable.append([i,1,m])
 
-            if path2Bool:
+            if paths_dict[1]["flag"]:
                 if(m[0]+"0"+ str(path2+1) + "0" in self.costs):
                     if(self.costs.get(m[0]+"0"+ str(path2+1) + "0") <= int(self.preciseMoney())):
                         viable.append([i,2,m])
 
-            if path3Bool:
+            if paths_dict[2]["flag"]:
                 if(m[0]+"00"+ str(path3+1) in self.costs):
                     if(self.costs.get(m[0]+"00"+ str(path3+1)) <= int(self.preciseMoney())):
                         viable.append([i,3,m])
@@ -294,6 +275,9 @@ class Placer:
             if op[0] == "wizard_monkey000":
                 chosen_buy = op
                 # print(f"Chosen purchase: {chosen_buy}")
+                # find an available location
+                # choose a random (or strategic) location
+
                 self.placeNext(chosen_buy[0][:-3])
                 return
     
@@ -301,19 +285,3 @@ class Placer:
         self.place("sniper_monkey", 27)
         
         # FIXME: This is a temporary fix for the sniper monkey placement
-
-    
-
-    # wizard monkey -> A
-    # Super monkey -> S
-    # Bomb shooter -> E
-    # Sniper monkey -> Z
-    # Banana farm -> H
-    
-    # Upgrade path 1 -> ,
-    # Upgrade path 2 -> .
-    # Upgrade path 3 -> /
-    
-    # Change target -> Tab
-    
-    # Sell -> backspace
