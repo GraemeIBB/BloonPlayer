@@ -177,13 +177,13 @@ class Placer:
 
                 # 2) Among the remaining two:
                 remaining = list(set([0, 1, 2]) - {missing})
-                i, j = remaining[0], remaining[1]
+                j, k = remaining[0], remaining[1]
 
                 # 3) If one is >= 3 and the other is exactly 2, disable the "2" path
-                if paths_dict[i]["value"] >= 3 and paths_dict[j]["value"] == 2:
+                if paths_dict[j]["value"] >= 3 and paths_dict[k]["value"] == 2:
+                    paths_dict[k]["flag"] = False
+                elif paths_dict[k]["value"] >= 3 and paths_dict[j]["value"] == 2:
                     paths_dict[j]["flag"] = False
-                elif paths_dict[j]["value"] >= 3 and paths_dict[i]["value"] == 2:
-                    paths_dict[i]["flag"] = False
 
             
 
@@ -193,19 +193,20 @@ class Placer:
             # print(str(i)+" "+m[0]+ "00"+ str(path3+1) + " option 3" + str(path3Bool))
 
             # checking costs against balance
+            curMoney = self.preciseMoney()
             if paths_dict[0]["flag"]:
                 if(m[0]+ str(path1+1) +"00" in self.costs ):
-                    if(self.costs.get(m[0]+ str(path1+1) +"00") <= int(self.preciseMoney())):
+                    if(self.costs.get(m[0]+ str(path1+1) +"00") <= int(curMoney)):
                         viable.append([i,1,m])
 
             if paths_dict[1]["flag"]:
                 if(m[0]+"0"+ str(path2+1) + "0" in self.costs):
-                    if(self.costs.get(m[0]+"0"+ str(path2+1) + "0") <= int(self.preciseMoney())):
+                    if(self.costs.get(m[0]+"0"+ str(path2+1) + "0") <= int(curMoney)):
                         viable.append([i,2,m])
 
             if paths_dict[2]["flag"]:
                 if(m[0]+"00"+ str(path3+1) in self.costs):
-                    if(self.costs.get(m[0]+"00"+ str(path3+1)) <= int(self.preciseMoney())):
+                    if(self.costs.get(m[0]+"00"+ str(path3+1)) <= int(curMoney)):
                         viable.append([i,3,m])
             i+=1
             
