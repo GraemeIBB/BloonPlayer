@@ -143,13 +143,7 @@ class Placer:
     def thinkUpgrades(self):
         # TODO make into a nested class think with methods like think.upgrade() and think.buy()
 
-        # good idea is to evaluate all options with given money, then determine one that is most helpful.
-        #  If all current monkeys are upgraded, then buy a new one.
-        #  If none are, then upgrade them.
-        # implement requirement logic here, ie if two paths have been upgraded, third is unavailable, and
-        # if three upgrade have been made on one path, the limit for the other is 2.
-        # --> placer.think()
-        # print('thinking-upgrade')
+        
         viable = []
         i = 0
         for m in self.monkeys:
@@ -184,15 +178,15 @@ class Placer:
                     paths_dict[k]["flag"] = False
                 elif paths_dict[k]["value"] >= 3 and paths_dict[j]["value"] == 2:
                     paths_dict[j]["flag"] = False
-
+                
+            # If there exists another of the same type of monkey at level 5 for any path, disable upgrading that path to 5
+            for path_index in range(3):
+                if paths_dict[path_index]["value"] == 4:
+                    if self.check45(m, path_index):
+                        paths_dict[path_index]["flag"] = False
             
-
-                    
-            # print(str(i)+" "+m[0]+ str(path1+1) +"00" + " option 1" + str(path1Bool))
-            # print(str(i)+" "+m[0]+ "0"+ str(path2+1) + "0" + " option 2" + str(path2Bool))
-            # print(str(i)+" "+m[0]+ "00"+ str(path3+1) + " option 3" + str(path3Bool))
-
-            # checking costs against balance
+                
+            # checking costs against balance 
             curMoney = self.preciseMoney()
             if paths_dict[0]["flag"]:
                 if(m[0]+ str(path1+1) +"00" in self.costs ):
@@ -212,7 +206,13 @@ class Placer:
             
 
         return viable
-    
+    def check45(self, m, path):
+        for monkey in self.monkeys:
+            if m[0] == monkey[0]:
+                if monkey[2][path] == "5":
+                    # print(f"Monkey {m[0]} at location {m[1]} has a path {path} at level 5")
+                    return True
+        return False
     def thinkBuy(self):
         # print('thinking-buy')
         # return list of possible buys in this format
