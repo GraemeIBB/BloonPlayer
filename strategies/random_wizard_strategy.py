@@ -10,12 +10,20 @@ from core.cost_calculator import CostCalculator
 class RandomWizardStrategy(IStrategy):
     """Strategy that focuses on wizard monkeys with random upgrades."""
 
+    # Strategy constants
+    DEFAULT_SNIPER_LOCATION = 27
+    MAX_TOWERS = 14
+    UPGRADE_THRESHOLD_EARLY = 5
+    UPGRADE_THRESHOLD_LATE = 3
+    THRESHOLD_TRANSITION_MOVES = 30
+
     def __init__(
         self,
         tower_placer: ITowerPlacer,
         tower_manager: TowerManager,
         cost_calculator: CostCalculator,
-        initial_sniper_location: int = 27
+        initial_sniper_location: int = DEFAULT_SNIPER_LOCATION,
+        max_towers: int = MAX_TOWERS
     ):
         """Initialize the strategy.
         
@@ -24,13 +32,14 @@ class RandomWizardStrategy(IStrategy):
             tower_manager: Tower manager instance
             cost_calculator: Cost calculator instance
             initial_sniper_location: Location for initial sniper placement
+            max_towers: Maximum number of towers before focusing on upgrades
         """
         self.tower_placer = tower_placer
         self.tower_manager = tower_manager
         self.cost_calculator = cost_calculator
         self.initial_sniper_location = initial_sniper_location
         self.move_count = 0
-        self.max_towers = 14
+        self.max_towers = max_towers
 
     def decide_next_action(self) -> Tuple[str, Optional[dict]]:
         """Decide the next action to take.
@@ -47,12 +56,13 @@ class RandomWizardStrategy(IStrategy):
         # Get current tower count
         tower_count = len(self.tower_manager.get_towers())
 
-        # After 14 towers, only upgrade
+        # After max towers, only upgrade
         if tower_count > self.max_towers:
             return self._decide_upgrade()
 
         # Determine threshold based on move count
-        thresh = 5 if self.move_count < 30 else 3
+        thresh = (self.UPGRADE_THRESHOLD_EARLY if self.move_count < self.THRESHOLD_TRANSITION_MOVES 
+                  else self.UPGRADE_THRESHOLD_LATE)
         choice = random.randint(0, 10)
 
         if choice > thresh:
