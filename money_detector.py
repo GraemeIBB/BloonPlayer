@@ -3,8 +3,10 @@ import cv2
 import numpy as np
 from PIL import ImageGrab
 from imutils.object_detection import non_max_suppression
+from interfaces.money_detector import IMoneyDetector
 
-class MoneyDetector:
+
+class MoneyDetector(IMoneyDetector):
     def __init__(self, region=(365, 0, 570, 100), threshold=0.8, overlap_thresh=0.3):
         self.region = region
         self.threshold = threshold
