@@ -6,6 +6,7 @@ from money_detector import MoneyDetector
 from tower_costs import easy
 from locations import monkey_meadow
 from bindings import bindings
+from placement_mask import PlacementMask
 
 
 
@@ -23,6 +24,8 @@ class Placer:
             if key[-3:] == "000":
                 self.baseMonkeys.append(key)
         self.moveNum = 0
+        # Initialize placement mask for strategic placement
+        self.placement_mask = PlacementMask(map_locations=monkey_meadow)
     
     def preciseMoney(self):
         a = self.money.get_money()
@@ -286,3 +289,44 @@ class Placer:
         self.place("sniper_monkey", 27)
         
         # FIXME: This is a temporary fix for the sniper monkey placement
+    
+    def getBestAvailableLocation(self, count=5):
+        """
+        Get the best available placement location using the placement mask.
+        
+        Args:
+            count: Number of top locations to consider
+            
+        Returns:
+            Best available location ID, or None if no locations available
+        """
+        # Get currently occupied locations
+        occupied = {m[1] for m in self.monkeys}
+        
+        # Get best locations excluding occupied ones
+        best_locations = self.placement_mask.get_best_locations(
+            count=count,
+            excluded_locations=list(occupied)
+        )
+        
+        # Return the top location if any available
+        if best_locations:
+            return best_locations[0][0]
+        return None
+    
+    def placeStrategic(self, type):
+        """
+        Place a monkey at the best strategic location based on placement mask.
+        
+        Args:
+            type: Type of monkey to place (e.g., "wizard_monkey")
+            
+        Returns:
+            1 if placed successfully, -1 otherwise
+        """
+        location = self.getBestAvailableLocation()
+        if location is None:
+            return -1
+        
+        self.place(type, location)
+        return 1
