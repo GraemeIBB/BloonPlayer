@@ -136,6 +136,6 @@ class PlacerRefactored:
 
     def upgradeRandom(self) -> None:
         """Perform random upgrade (backward compatibility)."""
-        action_type, params = self.strategy._decide_upgrade()
+        action_type, params = self.strategy.decide_next_action()
         if action_type == 'upgrade' and params:
             self.tower_placer.upgrade_tower(params['tower_index'], params['path'])

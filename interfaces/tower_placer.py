@@ -52,3 +52,12 @@ class ITowerPlacer(ABC):
             True if affordable, False otherwise
         """
         pass
+
+    @abstractmethod
+    def find_next_available_location(self) -> int:
+        """Find the next available location on the map.
+        
+        Returns:
+            Location index, or -1 if no locations available
+        """
+        pass

@@ -92,17 +92,19 @@ class TowerManager:
             return False
 
     def get_precise_money(self) -> str:
-        """Get precise money reading.
+        """Get precise money reading with retry limit.
         
         Returns:
             Money amount as string
         """
-        a = self.money_detector.get_money()
-        b = self.money_detector.get_money()
-        if a == b:
-            return a
-        else:
-            return self.get_precise_money()
+        max_retries = 5
+        for _ in range(max_retries):
+            a = self.money_detector.get_money()
+            b = self.money_detector.get_money()
+            if a == b:
+                return a
+        # If we can't get a consistent reading, return the last value
+        return a
 
     def get_upgrade_cost(self, tower_index: int, path: int) -> int:
         """Get the cost of upgrading a tower.
