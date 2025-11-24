@@ -27,6 +27,8 @@ class PlacerRefactored:
             map_name: Map name
         """
         # Create configurations
+        # Note: game_config validates difficulty level but is not currently used
+        # for other purposes. Kept for future extensibility.
         game_config = ConfigFactory.create_game_config(difficulty, map_name)
         map_config = ConfigFactory.create_map_config(map_name)
         difficulty_config = ConfigFactory.create_difficulty_config(difficulty)

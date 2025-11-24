@@ -98,13 +98,21 @@ class TowerManager:
             Money amount as string
         """
         max_retries = 5
+        a = ""  # Initialize to avoid uninitialized variable
+        
         for _ in range(max_retries):
-            a = self.money_detector.get_money()
-            b = self.money_detector.get_money()
-            if a == b:
-                return a
+            try:
+                a = self.money_detector.get_money()
+                b = self.money_detector.get_money()
+                if a == b:
+                    return a
+            except Exception:
+                # If detection fails, continue trying
+                continue
+        
         # If we can't get a consistent reading, return the last value
-        return a
+        # or empty string if no readings were obtained
+        return a if a else "0"
 
     def get_upgrade_cost(self, tower_index: int, path: int) -> int:
         """Get the cost of upgrading a tower.

@@ -84,7 +84,12 @@ class RandomWizardStrategy(IStrategy):
             List of (tower_index, path) tuples
         """
         viable = []
-        current_money = int(self.tower_manager.get_precise_money())
+        
+        try:
+            current_money = int(self.tower_manager.get_precise_money())
+        except (ValueError, TypeError):
+            # If money can't be converted, return empty list
+            return viable
         
         for i, tower in enumerate(self.tower_manager.get_towers()):
             tower_type = tower[0]
